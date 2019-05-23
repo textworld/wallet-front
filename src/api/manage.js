@@ -6,7 +6,8 @@ const api = {
   service: '/service',
   permission: '/permission',
   permissionNoPager: '/permission/no-pager',
-  orgTree: '/org/tree'
+  orgTree: '/org/tree',
+  history: '/api/payment/history'
 }
 
 export default api
@@ -58,5 +59,13 @@ export function saveService (parameter) {
     url: api.service,
     method: parameter.id === 0 ? 'post' : 'put',
     data: parameter
+  })
+}
+
+export function getPaymentHistory (parameter) {
+  return axios({
+    url: api.history,
+    method: 'get',
+    params: parameter
   })
 }

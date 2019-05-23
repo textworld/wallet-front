@@ -40,7 +40,6 @@ export const asyncRouterMap = [
           }
         ]
       },
-
       // forms
       {
         path: '/form',
@@ -68,7 +67,20 @@ export const asyncRouterMap = [
           }
         ]
       },
-
+      {
+        path: '/payment',
+        name: 'payment',
+        redirect: '/payment/history',
+        component: PageView,
+        meta: { title: '账单', icon: 'form', keepAlive: true, permission: [ 'dashboard' ] },
+        children: [
+          {
+            path: '/payment/history',
+            name: 'ahaha',
+            component: () => import('@/views/payment/Table'),
+            meta: { title: '分析页', keepAlive: false, permission: [ 'dashboard' ] }
+          }]
+      },
       // list
       {
         path: '/list',
