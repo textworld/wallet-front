@@ -7,7 +7,7 @@ const api = {
   permission: '/permission',
   permissionNoPager: '/permission/no-pager',
   orgTree: '/org/tree',
-  history: '/api/payment/history'
+  history: '/v1/record'
 }
 
 export default api
@@ -67,5 +67,13 @@ export function getPaymentHistory (parameter) {
     url: api.history,
     method: 'get',
     params: parameter
+  })
+}
+
+export function updatePaymentHistory (parameter) {
+  return axios({
+    url: api.history + '/' + parameter.id,
+    method: 'put',
+    data: parameter
   })
 }

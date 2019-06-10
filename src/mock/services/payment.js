@@ -24,4 +24,4 @@ const history = (options) => {
   })
 }
 
-Mock.mock(/\/api\/payment\/history/, 'get', history)
+Mock.mock(/\/api\/v1\/record/, 'get', history)
