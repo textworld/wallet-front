@@ -8,6 +8,7 @@
               <a-select v-model="queryParam.status" placeholder="请选择" default-value="0">
                 <a-select-option :value="0">未记录</a-select-option>
                 <a-select-option :value="1">已记录</a-select-option>
+                <a-select-option :value="2">略过</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -25,7 +26,8 @@
       size="default"
       rowKey="id"
       :columns="columns"
-      :data="loadData">
+      :data="loadData"
+      :scroll="{ x: 1300 }">
       <span slot="date" slot-scope="text">
         {{ text.substring(0, 10) }}
       </span>
@@ -91,34 +93,52 @@ export default {
         {
           title: '日期',
           dataIndex: 'date',
-          scopedSlots: { customRender: 'date' }
+          scopedSlots: { customRender: 'date' },
+          fixed: 'left',
+          width: 150
         },
         {
           title: '金额',
-          dataIndex: 'money'
+          dataIndex: 'money',
+          fixed: 'left',
+          width: 100
         },
         {
           title: '名称',
           dataIndex: 'name'
         },
         {
+          title: '对方账户',
+          dataIndex: 'trade_account'
+        },
+        {
           title: '交易状态',
-          dataIndex: 'trade_status'
+          dataIndex: 'trade_status',
+          width: 200
         },
         {
           title: '状态',
           dataIndex: 'status',
-          scopedSlots: { customRender: 'status' }
+          scopedSlots: { customRender: 'status' },
+          width: 100
+        },
+        {
+          title: '资金状态',
+          dataIndex: 'fund_status',
+          width: 100
         },
         {
           title: '来源',
           dataIndex: 'source',
-          scopedSlots: { customRender: 'source' }
+          scopedSlots: { customRender: 'source' },
+          width: 100
         },
         {
           title: '操作',
           dataIndex: 'action',
-          scopedSlots: { customRender: 'action' }
+          scopedSlots: { customRender: 'action' },
+          fixed: 'right',
+          width: 100
         }
       ],
       loadData: parameter => {
