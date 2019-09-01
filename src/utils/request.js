@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import axios from 'axios'
 import store from '@/store'
+import { message } from 'ant-design-vue/es'
 import {
   VueAxios
 } from './axios'
@@ -53,7 +54,11 @@ service.interceptors.request.use(config => {
 
 // response interceptor
 service.interceptors.response.use((response) => {
-  return response.data
+  if (response.data.code !== 0) {
+    message.error(response.data.message)
+  } else {
+    return response.data
+  }
 }, err)
 
 const installer = {

@@ -8,6 +8,7 @@
     "build:preview": "vue-cli-service build --mode preview",
     "lint": "vue-cli-service lint",
     "lint:nofix": "vue-cli-service lint --no-fix",
+    "lint:fix": "eslint --ext .js,.vue src --fix",
     "test:unit": "vue-cli-service test:unit",
     "postinstall": "opencollective-postinstall"
   },
@@ -18,6 +19,7 @@
     "core-js": "^2.6.5",
     "enquire.js": "^2.1.6",
     "js-cookie": "^2.2.0",
+    "lodash": "^4.17.11",
     "lodash.get": "^4.4.2",
     "lodash.pick": "^4.4.0",
     "md5": "^2.2.1",
