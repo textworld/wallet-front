@@ -94,8 +94,8 @@ module.exports = {
     // development server port 8000
     port: 8000,
     proxy: {
-      '/api': {
-        target: 'http://localhost:5000/',
+      '/wallet/api': {
+        target: 'http://localhost:8088/',
         ws: true,
         changeOrigin: true
       }

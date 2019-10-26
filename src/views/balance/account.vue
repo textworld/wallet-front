@@ -18,7 +18,7 @@
               <a-avatar
                 class="card-avatar"
                 slot="avatar"
-                src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png"
+                :src="getAccountDetail(item.type).avatar"
                 size="large"/>
               <div class="meta-content" slot="description">{{ item.comment }}</div>
             </a-card-meta>
@@ -75,6 +75,7 @@
 <script>
 import { getAccountList, createAccount, deleteAccount, updateAccount } from '@/api/balance'
 import { Icon } from 'ant-design-vue'
+import * as trService from '@/api/transaction'
 
 const CollectionCreateForm = {
   props: ['visible', 'account'],
@@ -115,8 +116,8 @@ const CollectionCreateForm = {
             }
           ]"
         >
-            <a-radio value='asset'>资产</a-radio>
-            <a-radio value='debt'>负债</a-radio>
+            <a-radio value='1'>资产</a-radio>
+            <a-radio value='2'>负债</a-radio>
           </a-radio-group>
       </a-form-item>
     </a-form>
@@ -129,13 +130,6 @@ export default {
   components: { Icon, CollectionCreateForm },
   data () {
     return {
-      description: '段落示意：蚂蚁金服务设计平台 ant.design，用最小的工作量，无缝接入蚂蚁金服生态， 提供跨越设计与开发的体验解决方案。',
-      linkList: [
-        { icon: 'rocket', href: '#', title: '快速开始' },
-        { icon: 'info-circle-o', href: '#', title: '产品简介' },
-        { icon: 'file-text', href: '#', title: '产品文档' }
-      ],
-      extraImage: 'https://gw.alipayobjects.com/zos/rmsportal/RzwpdLnhmvDJToTdfDPe.png',
       accounts: [],
       visibleOfCreate: false,
       modalAccount: {},
@@ -225,6 +219,9 @@ export default {
           console.log('Cancel')
         }
       })
+    },
+    getAccountDetail (accountType) {
+      return trService.getTypeDetail(accountType)
     }
   }
 }

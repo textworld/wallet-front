@@ -1,74 +1,35 @@
 <template>
   <div>
-    <a-card :bordered="false">
-      <a-row>
-        <a-col :sm="8" :xs="24">
-          <head-info title="我的待办" content="8个任务" :bordered="true"/>
-        </a-col>
-        <a-col :sm="8" :xs="24">
-          <head-info title="本周任务平均处理时间" content="32分钟" :bordered="true"/>
-        </a-col>
-        <a-col :sm="8" :xs="24">
-          <head-info title="本周完成任务数" content="24个"/>
-        </a-col>
-      </a-row>
-    </a-card>
 
     <a-card
       style="margin-top: 24px"
       :bordered="false"
-      title="标准列表">
+      title="记账">
 
-      <div slot="extra">
-        <a-radio-group>
-          <a-radio-button>全部</a-radio-button>
-          <a-radio-button>进行中</a-radio-button>
-          <a-radio-button>等待中</a-radio-button>
-        </a-radio-group>
-        <a-input-search style="margin-left: 16px; width: 272px;" />
-      </div>
+      <a-button slot="extra" type="primary" @click="createTransaction">新增</a-button>
 
-      <div class="operate">
-        <a-button type="dashed" style="width: 100%" icon="plus">添加</a-button>
-      </div>
+      <a-table :columns="columns" :dataSource="trList" rowKey="id">
+        <span slot="status" slot-scope="status">
+          {{ getTransactionStatus(status) }}
+        </span>
 
-      <a-list size="large" :pagination="{showSizeChanger: true, showQuickJumper: true, pageSize: 5, total: 50}">
-        <a-list-item :key="index" v-for="(item, index) in data">
-          <a-list-item-meta>
-            <a-avatar slot="avatar" size="large" shape="square" src="https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png"/>
-            <a slot="title">ID: {{ item.id }}</a>
-          </a-list-item-meta>
-          <div slot="actions" v-if="item.status == 'begin'">
-            <a>提交</a>
-          </div>
-          <div slot="actions" v-if="item.status == 'begin'">
-            <a>记账</a>
-          </div>
-          <div slot="actions">
-            <a-dropdown>
-              <a-menu slot="overlay">
-                <a-menu-item><a>重新计算</a></a-menu-item>
-                <a-menu-item><a>删除</a></a-menu-item>
-              </a-menu>
-              <a>更多<a-icon type="down"/></a>
-            </a-dropdown>
-          </div>
-          <div class="list-content">
-            <div class="list-content-item">
-              <span>资产</span>
-              <p>{{ item.asset }}</p>
-            </div>
-            <div class="list-content-item">
-              <span>负债</span>
-              <p>{{ item.debt }}</p>
-            </div>
-            <div class="list-content-item">
-              <span>开始时间</span>
-              <p>{{ item.gmt_transaction }}</p>
-            </div>
-          </div>
-        </a-list-item>
-      </a-list>
+        <span slot="action" slot-scope="text, record">
+          <template v-if="record.status == 0">
+            <a-button-group>
+              <a-button size="small" @click="toIndex(record.id)">记账</a-button>
+              <a-button size="small" @click="commit(record.id)">提交</a-button>
+              <a-button size="small" @click="showUpdateTimeModal = true">修改记账时间</a-button>
+            </a-button-group>
+          </template>
+          <template v-if="record.status == 1">
+            <a-button-group>
+              <a-button size="small" @click="toIndex(record.id)">查看</a-button>
+            </a-button-group>
+
+          </template>
+        </span>
+
+      </a-table>
 
     </a-card>
   </div>
@@ -76,15 +37,45 @@
 
 <script>
 import HeadInfo from '@/components/tools/HeadInfo'
-
-const data = []
-data.push({
-  'id': 1,
-  'status': 'begin',
-  'asset': 0,
-  'debt': 0,
-  'gmt_transaction': '2019-08-31T16:00:00'
-})
+import * as trService from '@/api/transaction'
+const columns = [
+  {
+    title: '时间',
+    dataIndex: 'gmt_create',
+    key: 'gmt_create'
+  },
+  {
+    title: '状态',
+    dataIndex: 'status',
+    key: 'status',
+    scopedSlots: { customRender: 'status' }
+  },
+  {
+    title: '资产',
+    dataIndex: 'asset',
+    key: 'asset'
+  },
+  {
+    title: '负债',
+    dataIndex: 'debt',
+    key: 'debt'
+  },
+  {
+    title: '净资产',
+    dataIndex: 'rest_money',
+    key: 'rest_money'
+  },
+  {
+    title: '变化',
+    dataIndex: 'variation',
+    key: 'variation'
+  },
+  {
+    title: 'Action',
+    key: 'action',
+    scopedSlots: { customRender: 'action' }
+  }
+]
 
 export default {
   name: 'StandardList',
@@ -93,7 +84,64 @@ export default {
   },
   data () {
     return {
-      data
+      showUpdateTimeModal: false,
+      pagination: {},
+      loading: false,
+      trList: [
+        {
+          id:0,
+          gmt_create: '2019-10-10 00:00:00',
+          status: 0,
+          asset: 78923.0,
+          debt: 2236.4,
+          rest_money: 75434.5,
+          variation: 1344
+        }
+      ],
+      columns
+    }
+  },
+  created () {
+    this.loadData()
+  },
+  methods: {
+    loadData () {
+      trService.getAll().then(resp => {
+        this.trList.splice(0, this.trList.length)
+        this.$lodash.forEach(resp.result, item => {
+          this.trList.push(item)
+        })
+      })
+    },
+    getTransactionStatus (t) {
+      return trService.getTransactionStatus(t).label
+    },
+    createTransaction () {
+      trService.beginTransaction().then(resp => {
+        console.log(resp)
+        this.$message.info('创建成功')
+        this.loadData()
+      })
+    },
+    toIndex (id) {
+      this.$router.push({
+        path: '/transaction/' + id
+      })
+      console.log("tz")
+      console.log(id)
+    },
+    commit (trId) {
+      let _t = this
+      this.$confirm({
+        title: '确认',
+        content: '确认提交该次记账么?',
+        onOk() {
+          trService.commit(trId).then(resp => {
+            _t.$message.info('保存成功')
+            _t.init()
+          })
+        },
+      })
     }
   }
 }

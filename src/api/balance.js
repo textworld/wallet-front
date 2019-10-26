@@ -1,7 +1,7 @@
 import { axios } from '@/utils/request'
 
 const api = {
-  accountList: '/v1/account'
+  accountList: '/v1/wallet/manage'
 }
 
 export default api

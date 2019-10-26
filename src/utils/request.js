@@ -12,8 +12,8 @@ import {
 
 // 创建 axios 实例
 const service = axios.create({
-  baseURL: '/api', // api base_url
-  timeout: 6000 // 请求超时时间
+  baseURL: '/wallet/api', // api base_url
+  timeout: 30000 // 请求超时时间
 })
 
 const err = (error) => {
@@ -54,7 +54,7 @@ service.interceptors.request.use(config => {
 
 // response interceptor
 service.interceptors.response.use((response) => {
-  if (response.data.code !== 0) {
+  if (response.data.status !== 0) {
     message.error(response.data.message)
   } else {
     return response.data

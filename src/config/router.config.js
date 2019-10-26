@@ -8,7 +8,7 @@ export const asyncRouterMap = [
     name: 'index',
     component: BasicLayout,
     meta: { title: '首页' },
-    redirect: '/dashboard/workplace',
+    redirect: '/transaction/list',
     children: [
       // dashboard
       {
@@ -39,27 +39,10 @@ export const asyncRouterMap = [
           }
         ]
       },
-      // 资产负债账户
-      {
-        path: '/balance',
-        name: 'balance',
-        component: PageView,
-        redirect: '/balance/account',
-        hideChildrenInMenu: true,
-        meta: { title: '资产负债账户', keepAlive: true, icon: bxAnaalyse, permission: [ 'dashboard' ] },
-        children: [
-          {
-            path: '/balance/account',
-            name: 'BalanceAccount',
-            component: () => import('@/views/balance/account'),
-            meta: { title: '资产负债账户', keepAlive: true, permission: [ 'dashboard' ] }
-          }
-        ]
-      },
       {
         path: '/transaction',
         name: 'transaction',
-        component: PageView,
+        component: RouteView,
         redirect: '/transaction/list',
         hideChildrenInMenu: true,
         meta: { title: '事务记账', keepAlive: true, icon: bxAnaalyse, permission: [ 'dashboard' ] },
@@ -69,9 +52,33 @@ export const asyncRouterMap = [
             name: 'TransactionList',
             component: () => import('@/views/transaction/list'),
             meta: { title: '历史', keepAlive: true, permission: [ 'dashboard' ] }
+          },
+          {
+            path: '/transaction/:id',
+            name: 'TransactionIndex',
+            component: () => import('@views/transaction/index'),
+            meta: { title: 'index', keepAlive: true, permission: [ 'dashboard' ] }
           }
         ]
       },
+      // 资产负债账户
+      {
+        path: '/balance',
+        name: 'balance',
+        component: PageView,
+        redirect: '/balance/account',
+        hideChildrenInMenu: true,
+        meta: { title: '账户管理', keepAlive: true, icon: bxAnaalyse, permission: [ 'dashboard' ] },
+        children: [
+          {
+            path: '/balance/account',
+            name: 'BalanceAccount',
+            component: () => import('@/views/balance/account'),
+            meta: { title: '资产负债账户', keepAlive: true, permission: [ 'dashboard' ] }
+          }
+        ]
+      },
+
       {
         path: '/payment',
         name: 'payment',
