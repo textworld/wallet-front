@@ -2,7 +2,7 @@
   <page-view :avatar="avatar" :title="false">
     <div slot="headerContent">
       <div class="title">{{ timeFix }}，欢迎记账~</div>
-      <div>记账日期: {{ detail.gmt_create }}，事务编号：{{ detail.id }}， 状态：{{getTransactionStatus(detail.status) ? getTransactionStatus(detail.status).label : ""}}</div>
+      <div>记账日期: {{ detail.gmt_transaction }}，事务编号：{{ detail.id }}， 状态：{{ getTransactionStatus(detail.status) ? getTransactionStatus(detail.status).label : "" }}</div>
     </div>
     <div slot="extra">
       <a-button-group>
@@ -74,7 +74,7 @@
             :grid="{gutter: 24, lg: 3, md: 2, sm: 1, xs: 1}"
             :dataSource="records"
           >
-            <a-list-item slot="renderItem" slot-scope="item" v-if="item.account_type == typeItem.val">
+            <a-list-item slot="renderItem" slot-scope="item" v-if="item.account_type === typeItem.val">
               <template>
                 <a-card :hoverable="true">
                   <a-card-meta>
@@ -91,7 +91,7 @@
                         </template>
                         <template v-else>
                           当前金额：{{ item.money }}<br/>
-                          记账时间：{{ item.gmt_create }}
+                          记账时间：{{ item.gmt_transaction }}
                         </template>
                       </div>
 
@@ -152,7 +152,6 @@ import { ChartCard, Trend } from '@/components'
 import { timeFix } from '@/utils/util'
 const DetailListItem = DetailList.Item
 
-
 export default {
   name: 'Index',
   components: {
@@ -165,7 +164,7 @@ export default {
   data () {
     return {
       timeFix: timeFix(),
-      avatar: "https://tva1.sinaimg.cn/large/006y8mN6ly1g8bh86u34uj30b40b4aa4.jpg",
+      avatar: 'https://tva1.sinaimg.cn/large/006y8mN6ly1g8bh86u34uj30b40b4aa4.jpg',
       loading: true,
       visibleModal: false,
       record: {
@@ -173,7 +172,7 @@ export default {
         account_id: 0,
         transaction_id: 0,
         account_name: '',
-        money: 0.0,
+        money: 0.0
       },
       detail: {
         rest_money: 0.0,
@@ -198,22 +197,32 @@ export default {
     }
   },
   created () {
-    this.transactionId = this.$route.params.id
     this.init()
+  },
+  mounted () {
+
+  },
+  watch: {
+    '$route.params.id': function (newVal, val) {
+      if (!this.$lodash.isUndefined(newVal) && this.$route.name === "TransactionIndex") {
+        this.init()
+      }
+
+    }
   },
   methods: {
     init () {
+      this.transactionId = this.$route.params.id
       this.loading = true
       trService.getOne(this.transactionId).then(resp => {
-        if(resp.status == 0) {
+        if (resp.status == 0) {
           this.detail = resp.result
           this.loading = false
         }
       })
 
       trService.getRecords(this.$route.params.id).then(resp => {
-        console.log(resp)
-        if(resp.status === 0) {
+        if (resp.status === 0) {
           this.records = resp.result
         }
       })
@@ -224,9 +233,7 @@ export default {
       this.record.account_id = account.account_id
       this.record.account_name = account.account_name
       this.record.transaction_id = this.$route.params.id
-      this.record.money = account.money
-      console.log(account)
-      console.log(this.record)
+      this.record.money = account.mone
       this.visibleModal = true
     },
 
@@ -247,11 +254,6 @@ export default {
     cancelRecord () {
       this.visibleModal = false
     },
-    getTypeDetail (id) {
-      const td = getTypeDetail(id)
-      console.log(td)
-      return td
-    },
     getTransactionStatus (id) {
       return trService.getTransactionStatus(id)
     },
@@ -262,24 +264,26 @@ export default {
       })
     },
     commit () {
-      for(var i = 0; i < this.records.length; i++) {
-        console.log(this.records[i].money)
-        if(this.$lodash.isUndefined(this.records[i].money) || this.$lodash.isNull(this.records[i].money)) {
-          this.$message.error("尚有账户未有记录！")
+      for (var i = 0; i < this.records.length; i++) {
+        if (this.$lodash.isUndefined(this.records[i].money) || this.$lodash.isNull(this.records[i].money)) {
+          this.$message.error('尚有账户未有记录！')
           return
         }
       }
-      let _t = this
+      const _t = this
       this.$confirm({
         title: '确认',
         content: '确认提交该次记账么?',
-        onOk() {
+        onOk () {
           trService.commit(_t.transactionId).then(resp => {
             _t.$message.info('保存成功')
             _t.init()
           })
-        },
+        }
       })
+    },
+    routeChanged () {
+
     }
   }
 }

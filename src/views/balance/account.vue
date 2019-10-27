@@ -154,7 +154,6 @@ export default {
         for (var i = 0; i < resp.result.length; i++) {
           this.accounts.push(resp.result[i])
         }
-        console.log(resp)
       })
     },
     showModal () {
@@ -169,7 +168,6 @@ export default {
         if (err) {
           return
         }
-        console.log('Received values of form: ', values)
         createAccount(values).then(resp => {
           this.reload()
         })
@@ -198,7 +196,6 @@ export default {
       })
     },
     cancelAccountUpdate () {
-      console.log('update cancel')
       this.visibleOfUpdate = false
     },
     deleteAccount (account) {
@@ -216,7 +213,6 @@ export default {
           })
         },
         onCancel () {
-          console.log('Cancel')
         }
       })
     },

@@ -47,7 +47,7 @@ export function getRecordedAccounts (transactionId) {
 
 export function getOne (transactionId) {
   return axios({
-    url: api.transactionUrl + '/' + transactionId ,
+    url: api.transactionUrl + '/' + transactionId,
     method: 'get'
   })
 }
@@ -118,4 +118,12 @@ export function getTransactionStatus (trStatus) {
     }
   }
   return null
+}
+
+export function updateTransaction (obj) {
+  return axios({
+    url: api.transactionUrl + '/' + obj.id,
+    data: obj,
+    method: 'put'
+  })
 }

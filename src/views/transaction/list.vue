@@ -14,24 +14,30 @@
         </span>
 
         <span slot="action" slot-scope="text, record">
-          <template v-if="record.status == 0">
-            <a-button-group>
+          <a-button-group>
+            <template v-if="record.status == 0">
               <a-button size="small" @click="toIndex(record.id)">记账</a-button>
               <a-button size="small" @click="commit(record.id)">提交</a-button>
-              <a-button size="small" @click="showUpdateTimeModal = true">修改记账时间</a-button>
-            </a-button-group>
-          </template>
-          <template v-if="record.status == 1">
-            <a-button-group>
+            </template>
+            <template v-if="record.status == 1">
               <a-button size="small" @click="toIndex(record.id)">查看</a-button>
-            </a-button-group>
-
-          </template>
+            </template>
+            <a-button size="small" @click="onTrTimeUpdateShow(record)">修改时间</a-button>
+          </a-button-group>
         </span>
 
       </a-table>
 
     </a-card>
+
+    <a-modal
+      title="Title"
+      :visible="updateTimeModal.show"
+      @ok="updateTransactionTime"
+      @cancel="cancelUpdateTrTime"
+    >
+      <a-date-picker @change="onTrTimeUpdate" />
+    </a-modal>
   </div>
 </template>
 
@@ -41,8 +47,8 @@ import * as trService from '@/api/transaction'
 const columns = [
   {
     title: '时间',
-    dataIndex: 'gmt_create',
-    key: 'gmt_create'
+    dataIndex: 'gmt_transaction',
+    key: 'gmt_transaction'
   },
   {
     title: '状态',
@@ -84,13 +90,16 @@ export default {
   },
   data () {
     return {
-      showUpdateTimeModal: false,
+      updateTimeModal: {
+        show: false,
+        obj: {}
+      },
       pagination: {},
       loading: false,
       trList: [
         {
-          id:0,
-          gmt_create: '2019-10-10 00:00:00',
+          id: 0,
+          gmt_transaction: '2019-10-10 00:00:00',
           status: 0,
           asset: 78923.0,
           debt: 2236.4,
@@ -103,6 +112,16 @@ export default {
   },
   created () {
     this.loadData()
+  },
+  mounted () {
+
+  },
+  watch: {
+    '$route.name': function (newVal, val) {
+      if (!this.$lodash.isUndefined(newVal) && this.$route.name === "TransactionList") {
+        this.loadData()
+      }
+    }
   },
   methods: {
     loadData () {
@@ -118,7 +137,6 @@ export default {
     },
     createTransaction () {
       trService.beginTransaction().then(resp => {
-        console.log(resp)
         this.$message.info('创建成功')
         this.loadData()
       })
@@ -127,21 +145,39 @@ export default {
       this.$router.push({
         path: '/transaction/' + id
       })
-      console.log("tz")
-      console.log(id)
     },
     commit (trId) {
-      let _t = this
+      const _t = this
       this.$confirm({
         title: '确认',
         content: '确认提交该次记账么?',
-        onOk() {
+        onOk () {
           trService.commit(trId).then(resp => {
             _t.$message.info('保存成功')
-            _t.init()
+            _t.loadData()
           })
-        },
+        }
       })
+    },
+    onTrTimeUpdateShow (row) {
+      this.updateTimeModal.obj = row
+      this.updateTimeModal.show = true
+
+    },
+    updateTransactionTime () {
+      let obj = this.updateTimeModal.obj
+      trService.updateTransaction(obj).then(resp => {
+        if (resp.status === 0) {
+          this.$message.info("修改成功")
+          this.updateTimeModal.show = false
+        }
+      })
+    },
+    cancelUpdateTrTime () {
+      this.updateTimeModal.show = false
+    },
+    onTrTimeUpdate (date, dateString) {
+      this.updateTimeModal.obj.gmt_transaction = date.format('YYYY-MM-DD HH:mm:ss')
     }
   }
 }
